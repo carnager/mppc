@@ -1,0 +1,283 @@
+#!/usr/bin/env python
+
+import argparse
+import types
+from string import Formatter
+from mpd import MPDClient
+import time
+client = MPDClient()
+
+
+# settings
+host = "tauron"
+port = "6600"
+password = "mpd_access"
+
+
+
+# connect to mpd
+client.connect(str(host), str(port))
+client.password(str(password))
+mpd_status = client.status()
+
+# create some functions for the status command
+trackstatus = str(int(client.status()['song']) +1 )
+
+def statusline():
+    mpdrandom = "off" if mpd_status['random'] == '0' else 'on'
+    mpdrepeat = "off" if mpd_status['repeat'] == '0' else 'on'
+    mpdsingle = "off" if mpd_status['single'] == '0' else 'on'
+    mpdconsume = "off" if mpd_status['consume'] == '0' else 'on'
+
+    if mpd_status['volume'] == '-1':
+        mpdvolume = "n/a"
+    else:
+        mpdvolume = mpd_status['volume']
+
+    print("volume: " + mpdvolume + "    repeat: " + mpdrepeat +
+            "   random: " + mpdrandom + "   single: " + mpdsingle +
+            "   consume: " + mpdconsume)
+
+def firstline():
+    print(client.currentsong()['artist'] + " - " + client.currentsong()['title'])
+
+
+# create filterlist
+filters = ["any" ,"artist" ,"album" ,"albumartist" ,"title" ,"track" ,"name" ,
+           "genre" ,"date", "file", "composer" ,"performer" ,"comment" ,"disc" ,
+           "MUSICBRAINZ_ARTISTID" ,"MUSICBRAINZ_ALBUMID" ,
+           "MUSICBRAINZ_ALBUMARTISTID" ,"MUSICBRAINZ_TRACKID"]
+
+# class to format output
+class MPCFormatter(Formatter):
+    def format(self, format_string, *args, **kwargs):
+        if len(args) < 1:
+            raise TypeError("no song object specified")
+
+        song = args[0]
+
+        if not isinstance(song, dict):
+            raise TypeError("song object is not a dict")
+
+        return super(MPCFormatter, self).format(format_string, *args, **kwargs)
+
+    def get_field(self, field_name, args, kwargs):
+        song = args[0]
+
+        try:
+            value = song[field_name]
+        except KeyError:
+            # Use an empty string for non-existant tags
+            value = ""
+
+        if isinstance(value, list):
+            # Join multiple tags into a single comma-separated string
+            value = ", ".join(value)
+
+        return (value, field_name)
+
+    def convert_field(self, value, conversion):
+        # Don't do field conversion
+        return value
+
+    def format_field(self, value, format_spec):
+        try:
+            return super(MPCFormatter, self).format_field(value, format_spec)
+        except ValueError:
+            # Ignore format errors (f.e., using integer formatting on strings)
+            return value
+
+
+# create aliases
+mpc_formatter = MPCFormatter()
+format_song = mpc_formatter.format
+
+#show current song
+def currentSong(args):
+    #set default format
+    format_pattern = "{artist} - {title}"
+
+    if "format" in vars(args) and args.format != None:
+        format_pattern = args.format
+
+    print(format_song(format_pattern, client.currentsong()))
+
+
+#show current playlist
+def playList(args):
+    #set default format
+    format_pattern = "{artist} - {title}"
+
+    if "format" in vars(args) and args.format != None:
+        format_pattern = args.format
+
+    pl = client.playlistinfo()
+    for song in pl:
+            print(format_song(format_pattern, song))
+
+def playSong(args):
+    client.play()
+    statusMPD(args)
+
+def toggleSong(args):
+    client.pause()
+    statusMPD(args)
+
+def nextSong(args):
+    playlist = client.status()
+    if 'nextsong' in mpd_status:
+        statusMPD(args)
+        client.next()
+    else:
+        print("nothing left to play")
+        client.next()
+
+
+def prevSong(args):
+    client.previous()
+    statusMPD(args)
+
+def stopSong(args):
+    client.stop()
+    statusMPD(args)
+
+def statusMPD(args):
+    statusstr = {'play' : "[playing]  #", 'pause' : "[paused]  #"}
+    if mpd_status['state'] != 'stop':
+        firstline()
+        current_time = mpd_status['time'].split(sep=":")
+        time_current = '%.2i:%.2i' % ( int( current_time[0] ) // 60, int( current_time[0] ) % 60 )
+        time_comp = '%.2i:%.2i' % ( int( current_time[1] ) // 60, int( current_time[1] ) % 60 )
+        print(statusstr[mpd_status['state']] + trackstatus + "/" + mpd_status['playlistlength'] +
+        "   " + time_current + "/" + time_comp)
+
+    statusline()
+
+
+#search in database
+def search(args):
+    args=vars(args)
+
+    #set default format
+    format_pattern = "{artist} - {title} ({album})"
+
+    #hier muss das anders aussehen, weil oben die argumente schon
+    #in ein dictionary konvertiert wurden
+    if "format" in args and args["format"] != None:
+        format_pattern = args["format"]
+
+    searches = {}
+
+    for filter in filters:
+        if args[filter] != None:
+            searches[filter] = args[filter]
+        else:
+            searches[filter] = ""
+
+    result = client.search("any", searches["any"],
+                           "artist", searches["artist"],
+                           "album", searches["album"],
+                           "albumartist", searches["albumartist"],
+                           "title", searches["title"],
+                           "track", searches["track"],
+                           "name", searches["name"],
+                           "file", searches["file"],
+                           "genre", searches["genre"],
+                           "date", searches["date"],
+                           "composer", searches["composer"],
+                           "performer", searches["performer"],
+                           "comment", searches["comment"],
+                           "disc", searches["disc"],
+                           "MUSICBRAINZ_ARTISTID", searches["MUSICBRAINZ_ARTISTID"],
+                           "MUSICBRAINZ_ALBUMID", searches["MUSICBRAINZ_ALBUMID"],
+                           "MUSICBRAINZ_ALBUMARTISTID", searches["MUSICBRAINZ_ALBUMARTISTID"],
+                           "MUSICBRAINZ_TRACKID", searches["MUSICBRAINZ_TRACKID"])
+
+    for entry in result:
+        print(format_song(format_pattern, entry))
+
+#add search result to playlist
+def searchAdd(args):
+    #Argumente in ein Dictionary kopieren
+    args=vars(args)
+
+    client.clear()
+    searches = {}
+
+    for filter in filters:
+        if args[filter] != None:
+            searches[filter] = args[filter]
+        else:
+            searches[filter] = ""
+
+    client.searchadd("any", searches["any"],
+                     "artist", searches["artist"],
+                     "album", searches["album"],
+                     "albumartist", searches["albumartist"],
+                     "title", searches["title"],
+                     "track", searches["track"],
+                     "name", searches["name"],
+                     "genre", searches["genre"],
+                     "date", searches["date"],
+                     "composer", searches["composer"],
+                     "performer", searches["performer"],
+                     "comment", searches["comment"],
+                     "disc", searches["disc"],
+                     "MUSICBRAINZ_ARTISTID", searches["MUSICBRAINZ_ARTISTID"],
+                     "MUSICBRAINZ_ALBUMID", searches["MUSICBRAINZ_ALBUMID"],
+                     "MUSICBRAINZ_ALBUMARTISTID", searches["MUSICBRAINZ_ALBUMARTISTID"],
+                     "MUSICBRAINZ_TRACKID", searches["MUSICBRAINZ_TRACKID"])
+
+#create commandline arguments
+parser = argparse.ArgumentParser(prog='mppc', description='A mpc clone in python')
+subparsers = parser.add_subparsers()
+
+parser_current = subparsers.add_parser('current', help="show current track")
+parser_current.add_argument('--format', help="format output")
+parser_current.set_defaults(call=currentSong)
+
+parser_playlist = subparsers.add_parser('playlist', help="show current playlist")
+parser_playlist.add_argument('--format', help="format output")
+parser_playlist.set_defaults(call=playList)
+
+parser_search = subparsers.add_parser('search', help="search songs in database")
+parser_search.add_argument('--format', help="format output")
+parser_search.set_defaults(call=search)
+
+parser_play = subparsers.add_parser('play', help="start playback")
+parser_play.set_defaults(call=playSong)
+
+parser_toggle = subparsers.add_parser('toggle', help="pauses/resumes playback")
+parser_toggle.set_defaults(call=toggleSong)
+
+parser_next = subparsers.add_parser('next', help="skip to next song in playlist")
+parser_next.set_defaults(call=nextSong)
+
+parser_prev = subparsers.add_parser('prev', help="skip to previous song in playlist")
+parser_prev.set_defaults(call=prevSong)
+
+parser_stop = subparsers.add_parser('stop', help="stop playback")
+parser_stop.set_defaults(call=stopSong)
+
+parser_status = subparsers.add_parser('status', help="show MPD status")
+parser_status.set_defaults(call=statusMPD)
+
+
+group = parser_search.add_argument_group("filter")
+
+for filter in filters:
+    group.add_argument("--" + filter)
+
+parser_searchadd = subparsers.add_parser('searchadd', help="add search result to playlist")
+parser_searchadd.set_defaults(call=searchAdd)
+
+group = parser_searchadd.add_argument_group("filter")
+
+for filter in filters:
+    group.add_argument("--" + filter)
+
+#parse arguments
+args = parser.parse_args()
+
+
+args.call(args)
