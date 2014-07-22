@@ -22,24 +22,6 @@ client.password(str(password))
 # create some functions for the status command
 trackstatus = str(int(client.status()['song']) +1 ) if 'song' in client.status() else "foo"
 
-def statusline():
-    mpd_status = client.status()
-    mpdrandom = "off" if mpd_status['random'] == '0' else 'on'
-    mpdrepeat = "off" if mpd_status['repeat'] == '0' else 'on'
-    mpdsingle = "off" if mpd_status['single'] == '0' else 'on'
-    mpdconsume = "off" if mpd_status['consume'] == '0' else 'on'
-
-    if mpd_status['volume'] == '-1':
-        mpdvolume = "n/a"
-    else:
-        mpdvolume = mpd_status['volume']
-
-    print("volume: " + mpdvolume + "    repeat: " + mpdrepeat +
-            "   random: " + mpdrandom + "   single: " + mpdsingle +
-            "   consume: " + mpdconsume)
-
-def firstline():
-    print(client.currentsong()['artist'] + " - " + client.currentsong()['title'])
 
 
 # create filterlist
@@ -149,6 +131,24 @@ def stopSong(args):
 
 def statusMPD(args):
     mpd_status = client.status()
+    def statusline():
+        mpdrandom = "off" if mpd_status['random'] == '0' else 'on'
+        mpdrepeat = "off" if mpd_status['repeat'] == '0' else 'on'
+        mpdsingle = "off" if mpd_status['single'] == '0' else 'on'
+        mpdconsume = "off" if mpd_status['consume'] == '0' else 'on'
+
+        if mpd_status['volume'] == '-1':
+            mpdvolume = "n/a"
+        else:
+            mpdvolume = mpd_status['volume']
+
+        print("volume: " + mpdvolume + "    repeat: " + mpdrepeat +
+                "   random: " + mpdrandom + "   single: " + mpdsingle +
+                "   consume: " + mpdconsume)
+
+    def firstline():
+        print(client.currentsong()['artist'] + " - " + client.currentsong()['title'])
+
     statusstr = {'play' : "[playing]  #", 'pause' : "[paused]  #"}
     if mpd_status['state'] != 'stop':
         firstline()
