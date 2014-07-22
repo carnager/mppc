@@ -225,7 +225,7 @@ parser_searchadd = subparsers.add_parser('searchadd', help="add search result to
 parser_searchadd.set_defaults(call=searchAdd)
 parser_searchadd.add_argument("filter", nargs="+", help="search filter")
 
-#parse arguments
+#parse arguments (thanks jat)
 args = parser.parse_args()
 
 if "filter" in args and len(args.filter) % 2 != 0:
