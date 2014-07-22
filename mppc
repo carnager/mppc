@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
+import sys
 import types
 from string import Formatter
 from mpd import MPDClient
@@ -78,6 +79,10 @@ def currentSong(args):
 
 
 #show current playlist
+def addMPD(args):
+    for line in sys.stdin.read().splitlines():
+        client.add(line)
+
 def playList(args):
     #set default format
     format_pattern = "{artist} - {title}"
@@ -209,6 +214,9 @@ parser_prev.set_defaults(call=prevSong)
 
 parser_stop = subparsers.add_parser('stop', help="stop playback")
 parser_stop.set_defaults(call=stopSong)
+
+parser_add = subparsers.add_parser('add', help="add <uri>")
+parser_add.set_defaults(call=addMPD)
 
 parser_status = subparsers.add_parser('status', help="show MPD status")
 parser_status.set_defaults(call=statusMPD)
