@@ -22,14 +22,6 @@ client.password(str(password))
 # create some functions for the status command
 trackstatus = str(int(client.status()['song']) +1 ) if 'song' in client.status() else "foo"
 
-
-
-# create filterlist
-filters = ["any" ,"artist" ,"album" ,"albumartist" ,"title" ,"track" ,"name" ,
-           "genre" ,"date", "file", "composer" ,"performer" ,"comment" ,"disc" ,
-           "MUSICBRAINZ_ARTISTID" ,"MUSICBRAINZ_ALBUMID" ,
-           "MUSICBRAINZ_ALBUMARTISTID" ,"MUSICBRAINZ_TRACKID"]
-
 # class to format output
 class MPCFormatter(Formatter):
     def format(self, format_string, *args, **kwargs):
