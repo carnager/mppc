@@ -118,7 +118,6 @@ def nextSong(args):
         print("nothing left to play")
         client.next()
 
-
 def prevSong(args):
     client.previous()
     mpd_status = client.status()
@@ -173,32 +172,7 @@ def search(args):
     if "format" in args and args["format"] != None:
         format_pattern = args["format"]
 
-    searches = {}
-
-    for filter in filters:
-        if args[filter] != None:
-            searches[filter] = args[filter]
-        else:
-            searches[filter] = ""
-
-    result = client.search("any", searches["any"],
-                           "artist", searches["artist"],
-                           "album", searches["album"],
-                           "albumartist", searches["albumartist"],
-                           "title", searches["title"],
-                           "track", searches["track"],
-                           "name", searches["name"],
-                           "file", searches["file"],
-                           "genre", searches["genre"],
-                           "date", searches["date"],
-                           "composer", searches["composer"],
-                           "performer", searches["performer"],
-                           "comment", searches["comment"],
-                           "disc", searches["disc"],
-                           "MUSICBRAINZ_ARTISTID", searches["MUSICBRAINZ_ARTISTID"],
-                           "MUSICBRAINZ_ALBUMID", searches["MUSICBRAINZ_ALBUMID"],
-                           "MUSICBRAINZ_ALBUMARTISTID", searches["MUSICBRAINZ_ALBUMARTISTID"],
-                           "MUSICBRAINZ_TRACKID", searches["MUSICBRAINZ_TRACKID"])
+    result = client.search(*args["filter"])
 
     for entry in result:
         print(format_song(format_pattern, entry))
@@ -209,31 +183,8 @@ def searchAdd(args):
     args=vars(args)
 
     client.clear()
-    searches = {}
 
-    for filter in filters:
-        if args[filter] != None:
-            searches[filter] = args[filter]
-        else:
-            searches[filter] = ""
-
-    client.searchadd("any", searches["any"],
-                     "artist", searches["artist"],
-                     "album", searches["album"],
-                     "albumartist", searches["albumartist"],
-                     "title", searches["title"],
-                     "track", searches["track"],
-                     "name", searches["name"],
-                     "genre", searches["genre"],
-                     "date", searches["date"],
-                     "composer", searches["composer"],
-                     "performer", searches["performer"],
-                     "comment", searches["comment"],
-                     "disc", searches["disc"],
-                     "MUSICBRAINZ_ARTISTID", searches["MUSICBRAINZ_ARTISTID"],
-                     "MUSICBRAINZ_ALBUMID", searches["MUSICBRAINZ_ALBUMID"],
-                     "MUSICBRAINZ_ALBUMARTISTID", searches["MUSICBRAINZ_ALBUMARTISTID"],
-                     "MUSICBRAINZ_TRACKID", searches["MUSICBRAINZ_TRACKID"])
+    client.searchadd(*args["filter"])
 
 #create commandline arguments
 parser = argparse.ArgumentParser(prog='mppc', description='A mpc clone in python')
@@ -250,6 +201,7 @@ parser_playlist.set_defaults(call=playList)
 parser_search = subparsers.add_parser('search', help="search songs in database")
 parser_search.add_argument('--format', help="format output")
 parser_search.set_defaults(call=search)
+parser_search.add_argument("filter", nargs="+", help="search filter")
 
 parser_play = subparsers.add_parser('play', help="start playback")
 parser_play.set_defaults(call=playSong)
@@ -269,22 +221,14 @@ parser_stop.set_defaults(call=stopSong)
 parser_status = subparsers.add_parser('status', help="show MPD status")
 parser_status.set_defaults(call=statusMPD)
 
-
-group = parser_search.add_argument_group("filter")
-
-for filter in filters:
-    group.add_argument("--" + filter)
-
 parser_searchadd = subparsers.add_parser('searchadd', help="add search result to playlist")
 parser_searchadd.set_defaults(call=searchAdd)
-
-group = parser_searchadd.add_argument_group("filter")
-
-for filter in filters:
-    group.add_argument("--" + filter)
+parser_searchadd.add_argument("filter", nargs="+", help="search filter")
 
 #parse arguments
 args = parser.parse_args()
 
+if "filter" in args and len(args.filter) % 2 != 0:
+    parser.error("filter args not a multiple of 2")
 
 args.call(args)
