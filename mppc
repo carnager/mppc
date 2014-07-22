@@ -18,12 +18,12 @@ password = "mpd_access"
 # connect to mpd
 client.connect(str(host), str(port))
 client.password(str(password))
-mpd_status = client.status()
 
 # create some functions for the status command
 trackstatus = str(int(client.status()['song']) +1 ) if 'song' in client.status() else "foo"
 
 def statusline():
+    mpd_status = client.status()
     mpdrandom = "off" if mpd_status['random'] == '0' else 'on'
     mpdrepeat = "off" if mpd_status['repeat'] == '0' else 'on'
     mpdsingle = "off" if mpd_status['single'] == '0' else 'on'
@@ -117,17 +117,21 @@ def playList(args):
 
 def playSong(args):
     client.play()
+    mpd_status = client.status()
     statusMPD(args)
 
 def toggleSong(args):
     client.pause()
+    mpd_status = client.status()
     statusMPD(args)
 
 def nextSong(args):
+    mpd_status = client.status()
     playlist = client.status()
     if 'nextsong' in mpd_status:
-        statusMPD(args)
         client.next()
+        mpd_status = client.status()
+        statusMPD(args)
     else:
         print("nothing left to play")
         client.next()
@@ -135,13 +139,16 @@ def nextSong(args):
 
 def prevSong(args):
     client.previous()
+    mpd_status = client.status()
     statusMPD(args)
 
 def stopSong(args):
     client.stop()
+    mpd_status = client.status()
     statusMPD(args)
 
 def statusMPD(args):
+    mpd_status = client.status()
     statusstr = {'play' : "[playing]  #", 'pause' : "[paused]  #"}
     if mpd_status['state'] != 'stop':
         firstline()
