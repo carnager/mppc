@@ -20,9 +20,6 @@ client.connect(str(host), str(port))
 client.password(str(password))
 
 
-# create some functions for the status command
-trackstatus = str(int(client.status()['song']) +1 ) if 'song' in client.status() else "foo"
-
 # class to format output
 class MPCFormatter(Formatter):
     def format(self, format_string, *args, **kwargs):
@@ -163,6 +160,7 @@ def statusMPD(args):
 
     statusstr = {'play' : "[playing]  #", 'pause' : "[paused]  #"}
     if mpd_status['state'] != 'stop':
+        trackstatus = str(int(client.status()['song']) +1 ) if 'song' in client.status() else "foo"
         firstline()
         current_time = mpd_status['time'].split(sep=":")
         time_current = '%.2i:%.2i' % ( int( current_time[0] ) // 60, int( current_time[0] ) % 60 )
