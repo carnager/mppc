@@ -10,15 +10,15 @@ client = MPDClient()
 
 
 # settings
-host = "localhost"
+host = "tauron"
 port = "6600"
-password = ""
+password = "mpd_access"
 
 
 
 # connect to mpd
 client.connect(str(host), str(port))
-#client.password(str(password))
+client.password(str(password))
 
 
 # class to format output
@@ -217,8 +217,6 @@ def listMPD(args):
 def searchAdd(args):
     #Argumente in ein Dictionary kopieren
     args=vars(args)
-
-    client.clear()
 
     client.searchadd(*args["filter"])
 
