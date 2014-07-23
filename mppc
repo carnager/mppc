@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import datetime
 import argparse
 import types
 from string import Formatter
@@ -138,6 +139,21 @@ def stopSong(args):
     mpd_status = client.status()
     statusMPD(args)
 
+def mpdStats(args):
+    def dt(u): return datetime.datetime.fromtimestamp(u)
+    def ut(d): return time.mktime(d.timetuple())
+    u = int(client.stats()['db_update'])
+
+    print("Artists:      " + client.stats()['artists'])
+    print("Albums:       " + client.stats()['albums'])
+    print("Songs:        " + client.stats()['songs'])
+    print(" ")
+    print("Play Time:    " + str(datetime.timedelta(seconds=int(client.stats()['playtime']))))
+    print("Uptime:       " + str(datetime.timedelta(seconds=int(client.stats()['uptime']))))
+    print("DB Updated:   " + str(dt(u)))
+    print("DB Play Time: " + str(datetime.timedelta(seconds=int(client.stats()['db_playtime']))))
+
+
 def statusMPD(args):
     mpd_status = client.status()
     def statusline():
@@ -229,6 +245,9 @@ parser_list.add_argument("filter2", nargs="+", help="search filter")
 
 parser_play = subparsers.add_parser('play', help="start playback")
 parser_play.set_defaults(call=playSong)
+
+parser_stats = subparsers.add_parser('stats', help="show statistics")
+parser_stats.set_defaults(call=mpdStats)
 
 parser_toggle = subparsers.add_parser('toggle', help="pauses/resumes playback")
 parser_toggle.set_defaults(call=toggleSong)
