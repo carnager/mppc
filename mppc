@@ -10,15 +10,15 @@ client = MPDClient()
 
 
 # settings
-host = "tauron"
+host = "localhost"
 port = "6600"
-password = "mpd_access"
+password = ""
 
 
 
 # connect to mpd
 client.connect(str(host), str(port))
-client.password(str(password))
+#client.password(str(password))
 
 
 # class to format output
