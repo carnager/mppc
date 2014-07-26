@@ -213,12 +213,46 @@ def listMPD(args):
         print(entry)
 
 
+#find in database
+def search(args):
+    args=vars(args)
+
+    #set default format
+    format_pattern = "{artist} - {title} ({album})"
+
+    #hier muss das anders aussehen, weil oben die argumente schon
+    #in ein dictionary konvertiert wurden
+    if "format" in args and args["format"] != None:
+        format_pattern = args["format"]
+
+    result = client.find(*args["filter"])
+
+    for entry in result:
+        print(format_song(format_pattern, entry))
+
+def listMPD(args):
+    args=vars(args)
+
+    mlist = (client.list(*args["filter2"]))
+
+    for entry in mlist:
+        print(entry)
+
+
 #add search result to playlist
 def searchAdd(args):
     #Argumente in ein Dictionary kopieren
     args=vars(args)
 
     client.searchadd(*args["filter"])
+
+#add search results to playlist
+def searchAdd(args):
+    #Argumente in ein Dictionary kopieren
+    args=vars(args)
+
+    client.findadd(*args["filter"])
+
 
 #create commandline arguments
 parser = argparse.ArgumentParser(prog='mppc', description='A mpc clone in python')
@@ -236,6 +270,11 @@ parser_search = subparsers.add_parser('search', help="search songs in database")
 parser_search.add_argument('--format', help="format output")
 parser_search.set_defaults(call=search)
 parser_search.add_argument("filter", nargs="+", help="search filter")
+
+parser_find = subparsers.add_parser('find', help="find songs in database")
+parser_find.add_argument('--format', help="format output")
+parser_find.set_defaults(call=search)
+parser_find.add_argument("filter", nargs="+", help="search filter")
 
 parser_list = subparsers.add_parser('list', help="list tags from database")
 parser_list.set_defaults(call=listMPD)
@@ -272,6 +311,11 @@ parser_listall.set_defaults(call=listAll)
 parser_searchadd = subparsers.add_parser('searchadd', help="add search result to playlist")
 parser_searchadd.set_defaults(call=searchAdd)
 parser_searchadd.add_argument("filter", nargs="+", help="search filter")
+
+parser_findadd = subparsers.add_parser('findadd', help="add find result to playlist")
+parser_findadd.set_defaults(call=searchAdd)
+parser_findadd.add_argument("filter", nargs="+", help="search filter")
+
 
 #parse arguments (thanks jat)
 args = parser.parse_args()
