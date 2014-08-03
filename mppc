@@ -20,7 +20,7 @@ password = config['server']['password']
 
 # connect to mpd
 client.connect(str(host), str(port))
-if port in globals():
+if port == "":
     print("connecting with no password")
 else:
     client.password(str(password))
