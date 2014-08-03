@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 import datetime
 import configparser
 import argparse
@@ -10,7 +11,7 @@ import time
 client = MPDClient()
 
 config = configparser.ConfigParser()
-config.read("/home/carnager/.config/mppc/config")
+config.read(os.environ["HOME"] + "/.config/mppc/config")
 
 host = config['server']['host']
 port = str(config['server']['port'])
