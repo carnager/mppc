@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import sys
 import os
 import datetime
 import configparser
@@ -9,12 +10,15 @@ from string import Formatter
 from mpd import MPDClient
 import time
 client = MPDClient()
-
 config = configparser.ConfigParser()
 config.read(os.environ["HOME"] + "/.config/mppc/config")
 
-host = config['server']['host']
-port = str(config['server']['port'])
+try:
+    host = config['server']['host']
+    port = str(config['server']['port'])
+except KeyError:
+    print('couldnt find host and port in {}/.config/mppc/config'.format(os.environ['HOME']))
+    sys.exit(0)
 
 # connect to the mpd-server
 client.connect(str(host), str(port))
