@@ -1,4 +1,6 @@
 [server]
 host = localhost
 port = 6600
+
+# leave empty for no password
 password =
