@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import datetime
+import configparser
 import argparse
 import types
 from string import Formatter
@@ -8,17 +9,21 @@ from mpd import MPDClient
 import time
 client = MPDClient()
 
+config = configparser.ConfigParser()
+config.read("/home/carnager/.config/mppc/config")
 
-# settings
-host = "localhost"
-port = "6600"
-password = ""
+host = config['server']['host']
+port = str(config['server']['port'])
+password = config['server']['password']
 
 
 
 # connect to mpd
 client.connect(str(host), str(port))
-#client.password(str(password))
+if port in globals():
+    print("connecting with no password")
+else:
+    client.password(str(password))
 
 
 # class to format output
