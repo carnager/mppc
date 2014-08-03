@@ -17,7 +17,7 @@ try:
     host = config['server']['host']
     port = str(config['server']['port'])
 except KeyError:
-    print('couldnt find host and port in {}/.config/mppc/config'.format(os.environ['HOME']))
+    print('Couldnt find host and port in {}/.config/mppc/config'.format(os.environ['HOME']))
     sys.exit(0)
 
 # connect to the mpd-server
