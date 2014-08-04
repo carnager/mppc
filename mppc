@@ -247,6 +247,12 @@ def listMPD(args):
     for entry in mlist:
         print(entry)
 
+def readComments(args):
+    args=vars(args)
+
+    comments = (client.readcomments(client.currentsong()['file']))
+    for key, value in comments.items():
+        print('%s : %s' % (key, value))
 
 #add search result to playlist
 def searchAdd(args):
@@ -309,6 +315,9 @@ parser_stop.set_defaults(call=stopSong)
 
 parser_status = subparsers.add_parser('status', help="show MPD status")
 parser_status.set_defaults(call=statusMPD)
+
+parser_readcomments = subparsers.add_parser('readcomments', help="show all tags of current song")
+parser_readcomments.set_defaults(call=readComments)
 
 parser_add = subparsers.add_parser('add', help="add <uri>")
 parser_add.set_defaults(call=addMPD)
