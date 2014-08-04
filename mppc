@@ -26,8 +26,8 @@ client.connect(str(host), str(port))
 if 'password' in config['server']:
     # use a password
     client.password(str(config['server']['password']))
-else:
-    print('connecting without a password')
+#else:
+#    print('connecting without a password')
 
 
 # class to format output
