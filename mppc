@@ -268,6 +268,10 @@ def searchAdd(args):
 
     client.findadd(*args["filter"])
 
+def prioSong(args):
+    for line in sys.stdin.read().splitlines():
+        client.prio(255, line)
+
 
 #create commandline arguments
 parser = argparse.ArgumentParser(prog='mppc', description='A mpc clone in python')
@@ -315,6 +319,9 @@ parser_stop.set_defaults(call=stopSong)
 
 parser_status = subparsers.add_parser('status', help="show MPD status")
 parser_status.set_defaults(call=statusMPD)
+
+parser_prio = subparsers.add_parser('prio', help="prioritize song")
+parser_prio.set_defaults(call=prioSong)
 
 parser_readcomments = subparsers.add_parser('readcomments', help="show all tags of current song")
 parser_readcomments.set_defaults(call=readComments)
