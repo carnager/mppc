@@ -250,7 +250,9 @@ def listMPD(args):
 def readComments(args):
     args=vars(args)
 
-    print(client.readcomments(sys.stdin.read()[:-1]))
+    comments = (client.readcomments(sys.stdin.read()[:-1]))
+    for key, value in comments.items():
+        print('%s : %s' % (key, value))
 
 #add search result to playlist
 def searchAdd(args):
