@@ -251,7 +251,7 @@ def readComments(args):
     args=vars(args)
 
     comments = (client.readcomments(sys.stdin.read()[:-1]))
-    for key, value in comments.items():
+    for key, value in sorted(comments.items()):
         print('%s : %s' % (key, value))
 
 #add search result to playlist
