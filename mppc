@@ -198,8 +198,6 @@ def statusMPD(args):
 
 #search in database
 def search(args):
-    args=vars(args)
-
     #set default format
     format_pattern = "{artist} - {title} ({album})"
 
@@ -214,8 +212,6 @@ def search(args):
         print(format_song(format_pattern, entry))
 
 def listMPD(args):
-    args=vars(args)
-
     mlist = (client.list(*args["filter2"]))
 
     for entry in mlist:
@@ -224,8 +220,6 @@ def listMPD(args):
 
 #find in database
 def search(args):
-    args=vars(args)
-
     #set default format
     format_pattern = "{artist} - {title} ({album})"
 
@@ -240,16 +234,12 @@ def search(args):
         print(format_song(format_pattern, entry))
 
 def listMPD(args):
-    args=vars(args)
-
     mlist = (client.list(*args["filter2"]))
 
     for entry in mlist:
         print(entry)
 
 def readComments(args):
-    args=vars(args)
-
     comments = (client.readcomments(sys.stdin.read()[:-1]))
     for key, value in sorted(comments.items()):
         print('%s : %s' % (key, value))
@@ -257,15 +247,11 @@ def readComments(args):
 #add search result to playlist
 def searchAdd(args):
     #Argumente in ein Dictionary kopieren
-    args=vars(args)
-
     client.searchadd(*args["filter"])
 
 #add search results to playlist
 def searchAdd(args):
     #Argumente in ein Dictionary kopieren
-    args=vars(args)
-
     client.findadd(*args["filter"])
 
 def prioSong(args):
@@ -348,4 +334,4 @@ args = parser.parse_args()
 if "filter" in args and len(args.filter) % 2 != 0:
     parser.error("filter args not a multiple of 2")
 
-args.call(args)
+args.call(vars(args))
