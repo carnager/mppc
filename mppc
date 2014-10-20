@@ -348,4 +348,7 @@ args = parser.parse_args()
 if "filter" in args and len(args.filter) % 2 != 0:
     parser.error("filter args not a multiple of 2")
 
-args.call(args)
+try:
+    args.call(args)
+except AttributeError:
+    print("No arguments given. Try mppc -h")
