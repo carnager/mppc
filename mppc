@@ -81,15 +81,17 @@ def addMPD(args):
 def listAll(args):
     client.iterate = True
 
+    listtags=client.listallinfo()
+
     if "format" in vars(args) and args.format != None:
         format_pattern = args.format
 
-        for song in client.listallinfo():
+        for song in listtags:
             if "file" in song:
                 print(format_song(format_pattern, song))
 
     if "format" in vars(args) and args.format == None:
-        for song in client.listallinfo():
+        for song in listtags:
             print(song)
 
 
