@@ -9,43 +9,27 @@ from string import Formatter
 from mpd import MPDClient
 import time
 client = MPDClient()
-config = configparser.ConfigParser()
-config.read(os.environ["HOME"] + "/.config/mppc/config")
 
-#try:
-#    host = config['server']['host']
-#    port = str(config['server']['port'])
-#except KeyError:
-#    print('Couldnt find host and port in {}/.config/mppc/config'.format(os.environ['HOME']))
-#    sys.exit(0)
+mpd_host = 'localhost'
+mpd_port = '6600'
+mpd_pass = ''
 
-# connect to the mpd-server
-mpd_connection = os.environ['MPD_HOST'].split(sep="@")
+if 'MPD_HOST' in os.environ:
+    mpd_connection = os.environ['MPD_HOST'].split('@')
+    if len(mpd_connection) == 1:
+        mpd_host = mpd_connection[0]
+    elif len(mpd_connection) == 2:
+        mpd_host = mpd_connection[1]
+        mpd_pass = mpd_connection[0]
+    else:
+        print('Unable to parse MPD_HOST, using defaults')
 
-try:
-    port = os.environ['MPD_PORT']
-except KeyError:
-    port = "6600"
+if 'MPD_PORT' in os.environ:
+    mpd_port = os.environ['MPD_PORT']
 
-if len(mpd_connection) == 2:
-    host = mpd_connection[1]
-    password = mpd_connection[0]
-else:
-    host = mpd_connection[0]
-
-client.connect(str(host), str(port))
-
-try:
-    password
-    client.password(str(password))
-except NameError:
-    print("No password given, trying without")
-
-#if 'password' in config['server']:
-    # use a password
-#    client.password(str(config['server']['password']))
-#else:
-#    print('connecting without a password')
+client.connect(mpd_host, mpd_port)
+if mpd_pass:
+    client.password(mpd_pass)
 
 
 # class to format output
