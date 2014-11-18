@@ -13,19 +13,32 @@ client = MPDClient()
 config = configparser.ConfigParser()
 config.read(os.environ["HOME"] + "/.config/mppc/config")
 
-try:
-    host = config['server']['host']
-    port = str(config['server']['port'])
-except KeyError:
-    print('Couldnt find host and port in {}/.config/mppc/config'.format(os.environ['HOME']))
-    sys.exit(0)
+#try:
+#    host = config['server']['host']
+#    port = str(config['server']['port'])
+#except KeyError:
+#    print('Couldnt find host and port in {}/.config/mppc/config'.format(os.environ['HOME']))
+#    sys.exit(0)
 
 # connect to the mpd-server
+mpd_connection = os.environ['MPD_HOST'].split(sep="@")
+
+try:
+    port = os.environ['MPD_PORT']
+except KeyError:
+    port = "6600"
+
+host = mpd_connection[1]
+password = mpd_connection[0]
+
 client.connect(str(host), str(port))
 
-if 'password' in config['server']:
+if password:
+    client.password(str(password))
+
+#if 'password' in config['server']:
     # use a password
-    client.password(str(config['server']['password']))
+#    client.password(str(config['server']['password']))
 #else:
 #    print('connecting without a password')
 
