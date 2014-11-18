@@ -28,8 +28,11 @@ try:
 except KeyError:
     port = "6600"
 
-host = mpd_connection[1]
-password = mpd_connection[0]
+if len(mpd_connection) == 2:
+    host = mpd_connection[1]
+    password = mpd_connection[0]
+else:
+    host = mpd_connection[0]
 
 client.connect(str(host), str(port))
 
