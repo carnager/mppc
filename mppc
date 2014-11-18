@@ -36,8 +36,11 @@ else:
 
 client.connect(str(host), str(port))
 
-if password:
+try:
+    password
     client.password(str(password))
+except NameError:
+    print("No password given, trying without")
 
 #if 'password' in config['server']:
     # use a password
