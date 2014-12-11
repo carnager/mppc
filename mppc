@@ -158,7 +158,7 @@ def trackCache(args):
     fields = ('artist', 'track', 'album', 'title')
     for artist in artistlist:
         for element in client.find('albumartist', artist):
-            print(element['albumartist']+" os.getenv['seperator'] "+element['track']+" os.getenv['seperator'] "+element['album']+" os.getenv['seperator'] "+element['title'])
+            print(element['albumartist']+os.getenv('seperator')+element['track']+os.getenv('seperator')+element['album']+os.getenv('seperator')+element['title'])
 
 def albumCache(args):
     artistlist=client.list('artist')
@@ -166,7 +166,7 @@ def albumCache(args):
     fields = ('artist', 'album', 'date')
     for artist in artistlist:
         for element in client.find('albumartist', artist):
-            content.add(" os.getenv['seperator'] ".join((element[f] for f in fields)))
+            content.add(os.getenv('seperator').join((element[f] for f in fields)))
     for line in sorted(content, key=str.lower):
         print(line)
 
@@ -176,7 +176,7 @@ def lastCache(args):
     fields = ('last-modified', 'date', 'albumartist', 'album')
     for artist in artistlist:
         for element in client.find('albumartist', artist):
-            content.add(" os.getenv['seperator'] ".join((element[f] for f in fields)))
+            content.add(os.getenv('seperator').join((element[f] for f in fields)))
     for line in sorted(content, key=str.lower, reverse=True):
         print(line)
 
