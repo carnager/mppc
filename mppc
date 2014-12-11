@@ -152,6 +152,34 @@ def stopSong(args):
     mpd_status = client.status()
     statusMPD(args)
 
+def trackCache(args):
+    artistlist=client.list('artist')
+    content = set()
+    fields = ('artist', 'track', 'album', 'title')
+    for artist in artistlist:
+        for element in client.find('albumartist', artist):
+            print(element['albumartist']+" • "+element['track']+" • "+element['album']+" • "+element['title'])
+
+def albumCache(args):
+    artistlist=client.list('artist')
+    content = set()
+    fields = ('artist', 'album', 'date')
+    for artist in artistlist:
+        for element in client.find('albumartist', artist):
+            content.add(" • ".join((element[f] for f in fields)))
+    for line in sorted(content, key=str.lower):
+        print(line)
+
+def lastCache(args):
+    artistlist=client.list('artist')
+    content = set()
+    fields = ('last-modified', 'date', 'albumartist', 'album')
+    for artist in artistlist:
+        for element in client.find('albumartist', artist):
+            content.add(" • ".join((element[f] for f in fields)))
+    for line in sorted(content, key=str.lower, reverse=True):
+        print(line)
+
 def mpdStats(args):
     def dt(u): return datetime.datetime.fromtimestamp(u)
     def ut(d): return time.mktime(d.timetuple())
@@ -329,6 +357,15 @@ parser_prio.set_defaults(call=prioSong)
 
 parser_readcomments = subparsers.add_parser('readcomments', help="show all tags of current song")
 parser_readcomments.set_defaults(call=readComments)
+
+parser_albumcache = subparsers.add_parser('albumcache', help="create album cache for clerk")
+parser_albumcache.set_defaults(call=albumCache)
+
+parser_trackcache = subparsers.add_parser('trackcache', help="create track cache for clerk")
+parser_trackcache.set_defaults(call=trackCache)
+
+parser_lastcache = subparsers.add_parser('lastcache', help="create album cache sorted by addition for clerk")
+parser_lastcache.set_defaults(call=lastCache)
 
 parser_add = subparsers.add_parser('add', help="add <uri>")
 parser_add.set_defaults(call=addMPD)
