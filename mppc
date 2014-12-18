@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from __future__ import print_function
 import sys
 import os
 import datetime
@@ -155,30 +156,64 @@ def stopSong(args):
 def trackCache(args):
     artistlist=client.list('artist')
     content = set()
+    errors = set()
+    errors2 = set()
     fields = ('artist', 'track', 'album', 'title')
     for artist in artistlist:
-        for element in client.find('albumartist', artist):
-            print(element['albumartist']+os.getenv('seperator')+element['track']+os.getenv('seperator')+element['album']+os.getenv('seperator')+element['title'])
+        try:
+            for element in client.find('albumartist', artist):
+                print(element['albumartist']+os.getenv('seperator')+element['track']+os.getenv('seperator')+element['album']+os.getenv('seperator')+element['title'])
+        except KeyError:
+            errors.add(element['file'])
+        except TypeError:
+            errors2.add(element['file'])
+    for line in sorted(errors, key=str.lower):
+        print("Missing tags for file: "+line, file=sys.stderr)
+    for line in sorted(errors2, key=str.lower):
+        print("Duplicate tags for file: "+line, file=sys.stderr)
+
 
 def albumCache(args):
     artistlist=client.list('artist')
     content = set()
+    errors = set()
+    errors2 = set()
     fields = ('artist', 'album', 'date')
     for artist in artistlist:
-        for element in client.find('albumartist', artist):
-            content.add(os.getenv('seperator').join((element[f] for f in fields)))
-    for line in sorted(content, key=str.lower):
-        print(line)
+        try:
+            for element in client.find('albumartist', artist):
+                content.add(os.getenv('seperator').join((element[f] for f in fields)))
+            for line in sorted(content, key=str.lower):
+                print(line)
+        except KeyError:
+            errors.add(element['file'])
+        except TypeError:
+            errors2.add(element['file'])
+    for line in sorted(errors, key=str.lower):
+        print("Missing tags for file: "+line, file=sys.stderr)
+    for line in sorted(errors2, key=str.lower):
+        print("Duplicate tags for file: "+line, file=sys.stderr)
 
 def lastCache(args):
     artistlist=client.list('artist')
     content = set()
+    errors = set()
+    errors2 = set()
     fields = ('last-modified', 'date', 'albumartist', 'album')
     for artist in artistlist:
-        for element in client.find('albumartist', artist):
-            content.add(os.getenv('seperator').join((element[f] for f in fields)))
-    for line in sorted(content, key=str.lower, reverse=True):
-        print(line)
+        try:
+            for element in client.find('albumartist', artist):
+                content.add(os.getenv('seperator').join((element[f] for f in fields)))
+            for line in sorted(content, key=str.lower, reverse=True):
+                print(line)
+        except KeyError:
+            errors.add(element['file'])
+        except TypeError:
+            errors2.add(element['file'])
+    for line in sorted(errors, key=str.lower):
+        print("Missing tags for file: "+line, file=sys.stderr)
+    for line in sorted(errors2, key=str.lower):
+        print("Duplicate tags for file: "+line, file=sys.stderr)
 
 def mpdStats(args):
     def dt(u): return datetime.datetime.fromtimestamp(u)
