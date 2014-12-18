@@ -159,10 +159,11 @@ def trackCache(args):
     errors = set()
     errors2 = set()
     fields = ('artist', 'track', 'album', 'title')
+    fh = open(os.getenv('HOME')+'/.config/clerk/tracks.cache', "w")
     for artist in artistlist:
         try:
             for element in client.find('albumartist', artist):
-                print(element['albumartist']+os.getenv('seperator')+element['track']+os.getenv('seperator')+element['album']+os.getenv('seperator')+element['title'])
+                fh.write(element['albumartist']+os.getenv('seperator')+element['track']+os.getenv('seperator')+element['album']+os.getenv('seperator')+element['title']+"\n")
         except KeyError:
             errors.add(element['file'])
         except TypeError:
@@ -171,6 +172,7 @@ def trackCache(args):
         print("Missing tags for file: "+line, file=sys.stderr)
     for line in sorted(errors2, key=str.lower):
         print("Duplicate tags for file: "+line, file=sys.stderr)
+    fh.close()
 
 
 def albumCache(args):
@@ -179,12 +181,13 @@ def albumCache(args):
     errors = set()
     errors2 = set()
     fields = ('artist', 'album', 'date')
+    fh = open(os.getenv('HOME')+'/.config/clerk/album.cache', "w")
     for artist in artistlist:
         try:
             for element in client.find('albumartist', artist):
                 content.add(os.getenv('seperator').join((element[f] for f in fields)))
             for line in sorted(content, key=str.lower):
-                print(line)
+                fh.write(line+"\n")
         except KeyError:
             errors.add(element['file'])
         except TypeError:
@@ -193,6 +196,7 @@ def albumCache(args):
         print("Missing tags for file: "+line, file=sys.stderr)
     for line in sorted(errors2, key=str.lower):
         print("Duplicate tags for file: "+line, file=sys.stderr)
+    fh.close()
 
 def lastCache(args):
     artistlist=client.list('artist')
@@ -200,12 +204,13 @@ def lastCache(args):
     errors = set()
     errors2 = set()
     fields = ('last-modified', 'date', 'albumartist', 'album')
+    fh = open(os.getenv('HOME')+'/.config/clerk/last.cache', "w")
     for artist in artistlist:
         try:
             for element in client.find('albumartist', artist):
                 content.add(os.getenv('seperator').join((element[f] for f in fields)))
             for line in sorted(content, key=str.lower, reverse=True):
-                print(line)
+                fh.write(line+"\n")
         except KeyError:
             errors.add(element['file'])
         except TypeError:
@@ -214,6 +219,7 @@ def lastCache(args):
         print("Missing tags for file: "+line, file=sys.stderr)
     for line in sorted(errors2, key=str.lower):
         print("Duplicate tags for file: "+line, file=sys.stderr)
+    fh.close()
 
 def mpdStats(args):
     def dt(u): return datetime.datetime.fromtimestamp(u)
