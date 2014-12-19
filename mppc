@@ -154,7 +154,7 @@ def stopSong(args):
     statusMPD(args)
 
 def trackCache(args):
-    artistlist=client.list('artist')
+    artistlist=client.list('albumartist')
     content = set()
     errors = set()
     errors2 = set()
@@ -176,11 +176,11 @@ def trackCache(args):
 
 
 def albumCache(args):
-    artistlist=client.list('artist')
+    artistlist=client.list('albumartist')
     content = set()
     errors = set()
     errors2 = set()
-    fields = ('artist', 'album', 'date')
+    fields = ('albumartist', 'album', 'date')
     fh = open(os.getenv('HOME')+'/.config/clerk/album.cache', "w")
     for artist in artistlist:
         try:
