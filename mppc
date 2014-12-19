@@ -186,12 +186,12 @@ def albumCache(args):
         try:
             for element in client.find('albumartist', artist):
                 content.add(os.getenv('seperator').join((element[f] for f in fields)))
-            for line in sorted(content, key=str.lower):
-                fh.write(line+"\n")
         except KeyError:
             errors.add(element['file'])
         except TypeError:
             errors2.add(element['file'])
+    for line in sorted(content, key=str.lower):
+        fh.write(line+"\n")
     for line in sorted(errors, key=str.lower):
         print("Missing tags for file: "+line, file=sys.stderr)
     for line in sorted(errors2, key=str.lower):
@@ -199,7 +199,7 @@ def albumCache(args):
     fh.close()
 
 def lastCache(args):
-    artistlist=client.list('artist')
+    artistlist=client.list('albumartist')
     content = set()
     errors = set()
     errors2 = set()
@@ -209,12 +209,12 @@ def lastCache(args):
         try:
             for element in client.find('albumartist', artist):
                 content.add(os.getenv('seperator').join((element[f] for f in fields)))
-            for line in sorted(content, key=str.lower, reverse=True):
-                fh.write(line+"\n")
         except KeyError:
             errors.add(element['file'])
         except TypeError:
             errors2.add(element['file'])
+    for line in sorted(content, key=str.lower, reverse=True):
+        fh.write(line[23:]+"\n")
     for line in sorted(errors, key=str.lower):
         print("Missing tags for file: "+line, file=sys.stderr)
     for line in sorted(errors2, key=str.lower):
