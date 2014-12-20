@@ -158,7 +158,7 @@ def trackCache(args):
     content = set()
     errors = set()
     errors2 = set()
-    fields = ('artist', 'track', 'album', 'title')
+    fields = ('artist', 'track', 'title', 'album')
     fh = open(os.getenv('HOME')+'/.config/clerk/tracks.cache', "w")
     for artist in artistlist:
         try:
