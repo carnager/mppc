@@ -163,7 +163,7 @@ def trackCache(args):
     for artist in artistlist:
         try:
             for element in client.find('albumartist', artist):
-                fh.write(element['albumartist']+os.getenv('seperator')+element['track']+os.getenv('seperator')+element['album']+os.getenv('seperator')+element['title']+"\n")
+                fh.write(element['albumartist']+os.getenv('seperator')+element['track']+os.getenv('seperator')+element['title']+os.getenv('seperator')+element['album']+"\n")
         except KeyError:
             errors.add(element['file'])
         except TypeError:
