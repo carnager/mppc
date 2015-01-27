@@ -154,7 +154,7 @@ def stopSong(args):
     statusMPD(args)
 
 def trackCache(args):
-    artistlist=client.list('albumartist')
+    artistlist=client.list('artist')
     content = set()
     errors = set()
     errors2 = set()
