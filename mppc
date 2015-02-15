@@ -177,7 +177,7 @@ def trackCache(args):
     content = lookup(key, fields)
     fh = open(os.getenv('HOME')+'/.config/clerk/tracks.cache', "w")
     entries = [os.getenv('separator').join(entry) for entry in content]
-    for entry in sorted(entries, key=lambda x:str.lower):
+    for entry in sorted(entries, key=str.lower):
         fh.write(entry+"\n")
     fh.close()
 
@@ -187,7 +187,7 @@ def albumCache(args):
     content = lookup(key, fields)
     fh = open(os.getenv('HOME')+'/.config/clerk/album.cache', "w")
     entries = [os.getenv('separator').join(entry) for entry in content]
-    for entry in sorted(entries, key=lambda x:str.lower):
+    for entry in sorted(entries, key=str.lower):
         fh.write(entry+"\n")
     fh.close()
 
