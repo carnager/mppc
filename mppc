@@ -180,22 +180,23 @@ def albumCache(args):
     content = set()
     errors = set()
     errors2 = set()
-    fields = ('albumartist', 'album', 'date')
+    fields = ('albumartist', 'date', 'album')
     fh = open(os.getenv('HOME')+'/.config/clerk/album.cache', "w")
     for artist in artistlist:
-        try:
-            for element in client.find('albumartist', artist):
-                content.add(os.getenv('seperator').join((element[f] for f in fields)))
-        except KeyError:
-            errors.add(element['file'])
-        except TypeError:
-            errors2.add(element['file'])
+        for element in client.find('albumartist', artist):
+            # die werte aller felder
+            elementvalues = []
+            for field in fields:
+                # der wert dieses einen feldes
+                fieldvalue = element[field]
+                if isinstance(fieldvalue, list):
+                    elementvalues.append(fieldvalue[0])
+                else:
+                    elementvalues.append(fieldvalue)
+            # alle felder wurden abgegrast
+            content.add(os.getenv('seperator').join(elementvalues))
     for line in sorted(content, key=str.lower):
         fh.write(line+"\n")
-    for line in sorted(errors, key=str.lower):
-        print("Missing tags for file: "+line, file=sys.stderr)
-    for line in sorted(errors2, key=str.lower):
-        print("Duplicate tags for file: "+line, file=sys.stderr)
     fh.close()
 
 def lastCache(args):
