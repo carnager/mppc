@@ -153,72 +153,50 @@ def stopSong(args):
     mpd_status = client.status()
     statusMPD(args)
 
-def trackCache(args):
-    artistlist=client.list('artist')
+def lookup(key, fields):
+    artistlist = client.list(key)
     content = set()
-    errors = set()
-    errors2 = set()
-    fields = ('artist', 'track', 'title', 'album')
-    fh = open(os.getenv('HOME')+'/.config/clerk/tracks.cache', "w")
     for artist in artistlist:
-        for element in client.find('artist', artist):
-            # die werte aller felder
+        for element in client.find(key, artist):
             elementvalues = []
             for field in fields:
-                # der wert dieses einen feldes
-                fieldvalue = element[field]
+                if field in element:
+                    fieldvalue = element[field]
+                else:
+                    fieldvalue = ''
                 if isinstance(fieldvalue, list):
                     elementvalues.append(fieldvalue[0])
                 else:
                     elementvalues.append(fieldvalue)
-            # alle felder wurden abgegrast
-            content.add(os.getenv('separator').join(elementvalues))
-    for line in sorted(content, key=str.lower):
-        fh.write(line+"\n")
+            content.add(tuple(elementvalues))
+    return content
+
+def trackCache(args):
+    key = 'artist'
+    fields = ('artist', 'track', 'title', 'album')
+    content = lookup(key, fields)
+    fh = open(os.getenv('HOME')+'/.config/clerk/tracks.cache', "w")
+    entries = [os.getenv('separator').join(entry) for entry in content]
+    for entry in sorted(entries, key=lambda x:str.lower):
+        fh.write(entry+"\n")
     fh.close()
 
-
 def albumCache(args):
-    artistlist=client.list('albumartist')
-    content = set()
+    key = 'albumartist'
     fields = ('albumartist', 'date', 'album')
+    content = lookup(key, fields)
     fh = open(os.getenv('HOME')+'/.config/clerk/album.cache', "w")
-    for artist in artistlist:
-        for element in client.find('albumartist', artist):
-            # die werte aller felder
-            elementvalues = []
-            for field in fields:
-                # der wert dieses einen feldes
-                fieldvalue = element[field]
-                if isinstance(fieldvalue, list):
-                    elementvalues.append(fieldvalue[0])
-                else:
-                    elementvalues.append(fieldvalue)
-            # alle felder wurden abgegrast
-            content.add(os.getenv('separator').join(elementvalues))
-    for line in sorted(content, key=str.lower):
-        fh.write(line+"\n")
+    entries = [os.getenv('separator').join(entry) for entry in content]
+    for entry in sorted(entries, key=lambda x:str.lower):
+        fh.write(entry+"\n")
     fh.close()
 
 def lastCache(args):
-    artistlist=client.list('albumartist')
-    content = set()
+    key = 'albumartist'
     fields = ('last-modified', 'date', 'albumartist', 'album')
-    fh = open(os.getenv('HOME')+'/.config/clerk/last.cache', "w")
+    content = lookup(key, fields)
     seen = set()
-    for artist in artistlist:
-        for element in client.find('albumartist', artist):
-            # die werte aller felder
-            elementvalues = []
-            for field in fields:
-                # der wert dieses einen feldes
-                fieldvalue = element[field]
-                if isinstance(fieldvalue, list):
-                    elementvalues.append(fieldvalue[0])
-                else:
-                    elementvalues.append(fieldvalue)
-            # alle felder wurden abgegrast
-            content.add(tuple(elementvalues))
+    fh = open(os.getenv('HOME')+'/.config/clerk/last.cache', "w")
     for element in sorted(content, key=lambda elem: elem[0], reverse=True):
         if element[1:] not in seen:
             line = element[1:]
